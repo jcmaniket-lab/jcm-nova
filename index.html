@@ -2,163 +2,218 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NOVA — JCM Intelligence</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<title>N·O·V·A — JCM Intelligence</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-:root{--orange:#E84A2F;--orange-light:#FFF0ED;--bg:#F7F6F3;--surface:#FFFFFF;--border:#E5E4DF;--text:#1A1A18;--text2:#6B6A65;--text3:#9B9A95;--green:#3B6D11;--green-bg:#EAF3DE;--amber:#854F0B;--amber-bg:#FAEEDA;--blue:#185FA5;--blue-bg:#E6F1FB;--radius:10px;--radius-sm:6px;--sidebar:220px}
+:root{--brand:#E84A2F;--brand-l:#FFF0ED;--bg:#F7F6F3;--sur:#FFFFFF;--bor:#E5E4DF;--tx:#1A1A18;--tx2:#6B6A65;--tx3:#9B9A95;--green:#3A7D0A;--green-bg:#EBF5E0;--amber:#8B5010;--amber-bg:#FEF0DC;--blue:#1A5FA8;--blue-bg:#E4F0FC;--red:#B02020;--red-bg:#FCE8E8;--r:10px;--rs:6px;--sw:220px;--th:56px}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;min-height:100vh}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--tx);font-size:14px;line-height:1.5;min-height:100vh;-webkit-font-smoothing:antialiased}
+button,input,textarea{font-family:inherit}
+.hidden{display:none!important}
+.sk{background:linear-gradient(90deg,var(--bg) 25%,var(--bor) 50%,var(--bg) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:4px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
 /* LOGIN */
-#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg)}
-.login-card{background:var(--surface);border-radius:16px;padding:40px 36px;width:100%;max-width:360px;box-shadow:0 4px 24px rgba(0,0,0,0.08);text-align:center}
-.nova-logo{width:52px;height:52px;background:var(--orange);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px;color:white}
-.login-title{font-size:22px;font-weight:600;letter-spacing:-0.3px;margin-bottom:4px}
-.login-sub{font-size:13px;color:var(--text2);margin-bottom:28px}
-.pin-label{font-size:12px;color:var(--text2);margin-bottom:8px;text-align:left}
-.pin-input{width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:20px;letter-spacing:8px;text-align:center;outline:none;transition:border-color .15s;color:var(--text);background:var(--surface)}
-.pin-input:focus{border-color:var(--orange)}
-.pin-input.error{border-color:#E24B4A}
-.login-btn{width:100%;padding:12px;background:var(--orange);color:white;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer;margin-top:14px;transition:opacity .15s}
-.login-btn:hover{opacity:.88}
-.login-btn:disabled{opacity:.5;cursor:not-allowed}
-.login-error{font-size:12px;color:#E24B4A;margin-top:8px;height:18px}
-.login-footer{margin-top:24px;font-size:11px;color:var(--text3)}
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center}
+.lbox{background:var(--sur);border-radius:16px;padding:40px 36px;width:100%;max-width:360px;box-shadow:0 2px 20px rgba(0,0,0,.07),0 0 0 1px var(--bor);text-align:center}
+.l-logo{width:52px;height:52px;background:var(--brand);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:13px;font-weight:700;color:white;letter-spacing:-.5px}
+.l-name{font-size:22px;font-weight:600;letter-spacing:-.5px}
+.l-sub{font-size:13px;color:var(--tx2);margin:4px 0 28px}
+.l-lbl{font-size:12px;color:var(--tx2);text-align:left;margin-bottom:6px}
+.l-pin{width:100%;padding:13px;border:1.5px solid var(--bor);border-radius:var(--rs);font-size:22px;letter-spacing:10px;text-align:center;outline:none;color:var(--tx);transition:border-color .15s}
+.l-pin:focus{border-color:var(--brand)}
+.l-pin.shake{animation:shake .3s ease;border-color:var(--red)}
+@keyframes shake{0%,100%{transform:translateX(0)}25%,75%{transform:translateX(-5px)}50%{transform:translateX(5px)}}
+.l-err{font-size:12px;color:var(--red);min-height:18px;margin-top:6px}
+.l-btn{width:100%;margin-top:12px;padding:12px;background:var(--brand);color:white;border:none;border-radius:var(--rs);font-size:14px;font-weight:500;cursor:pointer;transition:opacity .15s}
+.l-btn:hover:not(:disabled){opacity:.88}
+.l-btn:disabled{opacity:.45;cursor:not-allowed}
+.l-foot{margin-top:22px;font-size:11px;color:var(--tx3)}
 
 /* APP */
 #app{display:flex;min-height:100vh}
-#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:99}
-#overlay.show{display:block}
+#ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:99}
+#ov.on{display:block}
 
 /* SIDEBAR */
-#sidebar{width:var(--sidebar);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;height:100vh;z-index:100;transition:transform .2s}
-.sidebar-header{padding:18px 16px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
-.sidebar-logo{width:32px;height:32px;background:var(--orange);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;color:white;flex-shrink:0}
-.sidebar-brand-name{font-size:14px;font-weight:600;letter-spacing:-0.2px}
-.sidebar-brand-sub{font-size:10px;color:var(--text3);letter-spacing:.05em}
-.sidebar-nav{flex:1;padding:10px 8px;overflow-y:auto}
-.nav-section{font-size:10px;font-weight:500;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;padding:8px 8px 4px}
-.nav-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;transition:background .1s;color:var(--text2);font-size:13px;margin-bottom:1px}
-.nav-item:hover{background:var(--bg);color:var(--text)}
-.nav-item.active{background:var(--orange-light);color:var(--orange);font-weight:500}
-.nav-icon{width:16px;text-align:center;font-size:15px;flex-shrink:0}
-.soon-badge{margin-left:auto;font-size:9px;padding:1px 5px;border-radius:4px;background:var(--amber-bg);color:var(--amber);font-weight:500}
-.sidebar-footer{padding:10px 8px;border-top:1px solid var(--border)}
-.sidebar-user{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer}
-.user-avatar{width:28px;height:28px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:white;flex-shrink:0}
-.user-name{font-size:12px;font-weight:500}
-.user-role{font-size:10px;color:var(--text3)}
+#sb{width:var(--sw);background:var(--sur);border-right:1px solid var(--bor);display:flex;flex-direction:column;position:fixed;height:100vh;z-index:100;transition:transform .2s;overflow-y:auto}
+.sb-hd{padding:16px 14px 14px;border-bottom:1px solid var(--bor);display:flex;align-items:center;gap:9px;flex-shrink:0}
+.sb-logo{width:30px;height:30px;background:var(--brand);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;flex-shrink:0;letter-spacing:-.3px}
+.sb-t{font-size:13px;font-weight:600;letter-spacing:-.2px}
+.sb-s{font-size:9px;color:var(--tx3);letter-spacing:.08em;text-transform:uppercase;margin-top:1px}
+.sb-nav{flex:1;padding:8px 6px}
+.sb-sec{font-size:9.5px;font-weight:600;color:var(--tx3);letter-spacing:.07em;text-transform:uppercase;padding:10px 8px 3px}
+.sb-item{display:flex;align-items:center;gap:8px;padding:8px 9px;border-radius:var(--rs);cursor:pointer;color:var(--tx2);font-size:13px;margin-bottom:1px;transition:all .12s;user-select:none}
+.sb-item:hover{background:var(--bg);color:var(--tx)}
+.sb-item.on{background:var(--brand-l);color:var(--brand);font-weight:500}
+.sb-ic{width:18px;text-align:center;font-size:14px;flex-shrink:0}
+.sb-bdg{margin-left:auto;font-size:9px;padding:2px 5px;border-radius:3px;background:var(--amber-bg);color:var(--amber);font-weight:600}
+.sb-ft{border-top:1px solid var(--bor);padding:8px 6px;flex-shrink:0}
+.sb-usr{display:flex;align-items:center;gap:8px;padding:8px 9px;border-radius:var(--rs);cursor:pointer;transition:background .12s}
+.sb-usr:hover{background:var(--bg)}
+.sb-av{width:28px;height:28px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:white;flex-shrink:0}
+.sb-un{font-size:12px;font-weight:500}
+.sb-ur{font-size:10px;color:var(--tx3)}
 
 /* MAIN */
-#main{margin-left:var(--sidebar);flex:1;min-height:100vh;display:flex;flex-direction:column}
-.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
-.topbar-left{display:flex;align-items:center;gap:10px}
-.topbar-title{font-size:15px;font-weight:500}
-.topbar-sub{font-size:11px;color:var(--text2)}
-.topbar-right{display:flex;align-items:center;gap:8px}
-.topbar-btn{padding:6px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .1s;text-decoration:none}
-.topbar-btn:hover{border-color:var(--orange);color:var(--orange)}
-#mobile-menu-btn{display:none;border:none;padding:6px;background:none}
+#main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.tbar{height:var(--th);background:var(--sur);border-bottom:1px solid var(--bor);display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:50;flex-shrink:0}
+.tb-l{display:flex;align-items:center;gap:10px}
+.tb-tt{font-size:14px;font-weight:500}
+.tb-st{font-size:11px;color:var(--tx2);margin-top:1px}
+#mb-btn{display:none;background:none;border:1px solid var(--bor);border-radius:var(--rs);padding:6px 8px;color:var(--tx2);cursor:pointer}
+.tb-r{display:flex;align-items:center;gap:6px}
+.tb-btn{padding:6px 12px;border:1px solid var(--bor);border-radius:var(--rs);background:var(--sur);color:var(--tx2);font-size:12px;display:flex;align-items:center;gap:4px;transition:all .12s;text-decoration:none;cursor:pointer}
+.tb-btn:hover{border-color:var(--brand);color:var(--brand)}
 
 /* PAGES */
-.page{padding:24px;display:none}
-.page.active{display:block}
-#page-chat{display:none;flex-direction:column;height:calc(100vh - 56px);padding:0}
-#page-chat.active{display:flex}
+.page{display:none;padding:20px}
+.page.on{display:block}
+#pg-chat{display:none;flex-direction:column;height:calc(100vh - var(--th));padding:0}
+#pg-chat.on{display:flex}
 
-/* CARDS */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
-.card-title{font-size:11px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:14px}
+/* CARD */
+.card{background:var(--sur);border:1px solid var(--bor);border-radius:var(--r);padding:18px;margin-bottom:14px}
+.card:last-child{margin-bottom:0}
+.ctit{font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px}
 
-/* DASHBOARD */
-.nova-brief{background:var(--orange);border-radius:var(--radius);padding:20px 24px;color:white;margin-bottom:16px;position:relative;overflow:hidden}
-.nova-brief::after{content:'✦';position:absolute;right:20px;top:50%;transform:translateY(-50%);font-size:72px;opacity:.1;pointer-events:none}
-.brief-label{font-size:10px;opacity:.75;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
-.brief-headline{font-size:16px;font-weight:500;margin-bottom:6px}
-.brief-text{font-size:13px;opacity:.88;line-height:1.65;white-space:pre-wrap}
+/* BRIEF */
+.brief{background:var(--brand);border-radius:var(--r);padding:20px 22px;color:white;margin-bottom:14px;position:relative;overflow:hidden}
+.brief::after{content:'NOVA';position:absolute;right:12px;bottom:-12px;font-size:60px;font-weight:800;opacity:.07;pointer-events:none;letter-spacing:-2px}
+.br-chip{font-size:9.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;opacity:.7;margin-bottom:4px}
+.br-date{font-size:15px;font-weight:500;margin-bottom:8px}
+.br-body{font-size:13px;opacity:.9;line-height:1.7;white-space:pre-wrap;min-height:16px}
 
-.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
-.metric-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
-.metric-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
-.metric-val{font-size:26px;font-weight:500;line-height:1}
-.metric-val.orange{color:var(--orange)}
-.metric-sub{font-size:11px;color:var(--text3);margin-top:4px}
+/* METRICS */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.mc{background:var(--sur);border:1px solid var(--bor);border-radius:var(--r);padding:15px 16px}
+.mc-l{font-size:10.5px;color:var(--tx2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;font-weight:500}
+.mc-v{font-size:26px;font-weight:500;line-height:1;color:var(--tx)}
+.mc-v.ac{color:var(--brand)}
+.mc-s{font-size:11px;color:var(--tx3);margin-top:4px}
 
-.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
 
-.funnel-row{margin-bottom:10px}
-.funnel-top{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:4px}
-.funnel-track{height:6px;background:var(--bg);border-radius:3px;overflow:hidden}
-.funnel-fill{height:100%;border-radius:3px;transition:width .6s ease}
+/* FUNNEL */
+.fi{margin-bottom:11px}
+.fi-top{display:flex;justify-content:space-between;font-size:12px;color:var(--tx2);margin-bottom:4px}
+.fi-top span:last-child{font-weight:500;color:var(--tx)}
+.fi-track{height:5px;background:var(--bg);border-radius:3px;overflow:hidden}
+.fi-bar{height:100%;border-radius:3px;transition:width .7s ease}
 
-.inq-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
-.inq-row:last-child{border-bottom:none}
-.inq-company{font-size:13px;font-weight:500}
-.inq-product{font-size:11px;color:var(--text2);margin-top:2px}
-.stage-pill{font-size:10px;font-weight:500;padding:3px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0}
-.s-complete{background:var(--green-bg);color:var(--green)}
-.s-rate-given{background:var(--amber-bg);color:var(--amber)}
-.s-rate-ask{background:var(--blue-bg);color:var(--blue)}
-.s-new{background:#EEEDFE;color:#534AB7}
-.s-lost{background:#FCEBEB;color:#A32D2D}
+/* INQ ROWS */
+.ir{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--bor)}
+.ir:last-child{border-bottom:none;padding-bottom:0}
+.ir-co{font-size:13px;font-weight:500}
+.ir-pr{font-size:11px;color:var(--tx2);margin-top:2px}
+.pill{font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.p-done{background:var(--green-bg);color:var(--green)}
+.p-rg{background:var(--amber-bg);color:var(--amber)}
+.p-ra{background:var(--blue-bg);color:var(--blue)}
+.p-new{background:#EEEDFE;color:#4B45B8}
+.p-lost{background:var(--red-bg);color:var(--red)}
 
-/* SKELETON */
-.sk{background:linear-gradient(90deg,var(--bg) 25%,var(--border) 50%,var(--bg) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:4px}
-@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+/* FOLLOW-UP ALERT */
+.fu-alert{background:var(--amber-bg);border:1px solid #F5D088;border-radius:var(--r);padding:12px 16px;margin-bottom:14px;display:flex;gap:10px}
+.fu-ic{font-size:16px;flex-shrink:0;margin-top:1px}
+.fu-tt{font-size:12px;font-weight:600;color:var(--amber);margin-bottom:3px}
+.fu-it{font-size:12px;color:var(--amber);line-height:1.7}
 
 /* CHAT */
-.chat-messages{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:16px}
-.chat-msg{display:flex;gap:10px;max-width:740px}
-.chat-msg.user{flex-direction:row-reverse;margin-left:auto}
-.msg-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
-.msg-av.nova{background:var(--orange);color:white}
-.msg-av.user{background:var(--text);color:white}
-.msg-bub{padding:12px 16px;border-radius:14px;font-size:14px;line-height:1.65;max-width:calc(100% - 40px)}
-.chat-msg.nova .msg-bub{background:var(--surface);border:1px solid var(--border);border-top-left-radius:4px;white-space:pre-wrap}
-.chat-msg.user .msg-bub{background:var(--orange);color:white;border-top-right-radius:4px}
-.typing{display:flex;gap:4px;align-items:center;padding:14px 16px}
-.typing-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);animation:td 1.2s infinite}
-.typing-dot:nth-child(2){animation-delay:.2s}
-.typing-dot:nth-child(3){animation-delay:.4s}
-@keyframes td{0%,100%{opacity:.3;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
-.chat-suggestions{display:flex;flex-wrap:wrap;gap:8px;padding:0 24px 16px;background:var(--surface)}
-.chip{padding:6px 12px;border-radius:20px;border:1px solid var(--border);font-size:12px;color:var(--text2);cursor:pointer;transition:all .1s;white-space:nowrap}
-.chip:hover{border-color:var(--orange);color:var(--orange)}
-.chat-input-area{padding:16px 24px;background:var(--surface);border-top:1px solid var(--border);display:flex;gap:10px;align-items:flex-end}
-.chat-input{flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;outline:none;resize:none;font-family:inherit;color:var(--text);background:var(--bg);transition:border-color .15s;max-height:120px;line-height:1.5}
-.chat-input:focus{border-color:var(--orange);background:var(--surface)}
-.send-btn{width:38px;height:38px;border-radius:10px;background:var(--orange);color:white;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .15s}
-.send-btn:hover{opacity:.85}
-.send-btn:disabled{opacity:.4;cursor:not-allowed}
+.c-msgs{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px}
+.c-msg{display:flex;gap:9px;max-width:720px}
+.c-msg.u{flex-direction:row-reverse;margin-left:auto}
+.c-av{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;margin-top:1px}
+.c-av.n{background:var(--brand);color:white}
+.c-av.u{background:var(--tx);color:white}
+.c-bub{padding:11px 14px;border-radius:14px;font-size:14px;line-height:1.65;max-width:calc(100% - 38px)}
+.c-msg.nova .c-bub{background:var(--sur);border:1px solid var(--bor);border-top-left-radius:4px;white-space:pre-wrap}
+.c-msg.u .c-bub{background:var(--brand);color:white;border-top-right-radius:4px}
+.typing{display:flex;gap:4px;align-items:center;padding:12px 14px}
+.td{width:6px;height:6px;border-radius:50%;background:var(--tx3);animation:tda 1.2s infinite}
+.td:nth-child(2){animation-delay:.2s}
+.td:nth-child(3){animation-delay:.4s}
+@keyframes tda{0%,100%{opacity:.25;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
+.chips{display:flex;flex-wrap:wrap;gap:7px;padding:0 20px 12px;background:var(--sur)}
+.chip{padding:6px 12px;border-radius:20px;border:1px solid var(--bor);font-size:12px;color:var(--tx2);cursor:pointer;transition:all .12s;background:var(--sur)}
+.chip:hover{border-color:var(--brand);color:var(--brand)}
+.c-bar{padding:14px 20px;background:var(--sur);border-top:1px solid var(--bor);display:flex;gap:8px;align-items:flex-end}
+.c-ta{flex:1;padding:10px 14px;border:1.5px solid var(--bor);border-radius:10px;font-size:14px;outline:none;resize:none;color:var(--tx);background:var(--bg);transition:border-color .15s;max-height:120px;line-height:1.5}
+.c-ta:focus{border-color:var(--brand);background:var(--sur)}
+.s-btn{width:38px;height:38px;border-radius:10px;background:var(--brand);border:none;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;transition:opacity .15s}
+.s-btn:hover:not(:disabled){opacity:.85}
+.s-btn:disabled{opacity:.38;cursor:not-allowed}
+
+/* INVOICE */
+.tabs{display:flex;border-bottom:1px solid var(--bor);margin-bottom:16px}
+.t-btn{padding:10px 18px;font-size:13px;font-weight:500;color:var(--tx2);border:none;background:none;border-bottom:2.5px solid transparent;margin-bottom:-1px;cursor:pointer;transition:all .15s}
+.t-btn.on{color:var(--brand);border-bottom-color:var(--brand)}
+.upz{border:2px dashed var(--bor);border-radius:var(--r);padding:36px 24px;text-align:center;cursor:pointer;transition:all .15s}
+.upz:hover,.upz.drag{border-color:var(--brand);background:var(--brand-l)}
+.upz-ic{font-size:32px;margin-bottom:10px}
+.upz-tt{font-size:14px;font-weight:500;margin-bottom:4px}
+.upz-st{font-size:12px;color:var(--tx2)}
+.ptw{overflow-x:auto;margin-top:14px;border:1px solid var(--bor);border-radius:var(--r)}
+.pt{width:100%;border-collapse:collapse;font-size:12px}
+.pt th{background:var(--bg);padding:8px 12px;text-align:left;font-weight:500;color:var(--tx2);border-bottom:1px solid var(--bor);white-space:nowrap}
+.pt td{padding:8px 12px;border-bottom:1px solid var(--bor)}
+.pt tr:last-child td{border-bottom:none}
+.p-acts{display:flex;gap:8px;margin-top:12px;align-items:center;flex-wrap:wrap}
+.btn-p{padding:9px 18px;background:var(--brand);color:white;border:none;border-radius:var(--rs);font-size:13px;font-weight:500;cursor:pointer;transition:opacity .15s}
+.btn-p:hover:not(:disabled){opacity:.88}
+.btn-p:disabled{opacity:.4;cursor:not-allowed}
+.btn-s{padding:9px 18px;border:1px solid var(--bor);border-radius:var(--rs);background:var(--sur);color:var(--tx2);font-size:13px;cursor:pointer}
+.btn-s:hover{border-color:var(--tx2)}
+.smsg{font-size:12px;margin-left:4px}
+.smsg.ok{color:var(--green)}
+.smsg.err{color:var(--red)}
+.inv-row{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:var(--sur);border:1px solid var(--bor);border-radius:var(--rs);margin-bottom:6px}
+.inv-no{font-size:13px;font-weight:500}
+.inv-pt{font-size:11px;color:var(--tx2);margin-top:2px}
+.inv-tot{font-size:13px;font-weight:500;color:var(--brand);text-align:right}
+.inv-dt{font-size:11px;color:var(--tx3);text-align:right;margin-top:2px}
+
+/* BEARING SEARCH */
+.b-row{display:flex;gap:8px;margin-bottom:4px}
+.b-in{flex:1;padding:10px 14px;border:1.5px solid var(--bor);border-radius:var(--rs);font-size:13px;outline:none;color:var(--tx);transition:border-color .15s;background:var(--sur)}
+.b-in:focus{border-color:var(--brand)}
+.b-ans{margin-top:14px;font-size:13px;line-height:1.75;color:var(--tx);white-space:pre-wrap;min-height:0}
+.ref-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.ref-tbl th{background:var(--bg);padding:8px 10px;text-align:left;border-bottom:1px solid var(--bor);font-weight:500;color:var(--tx2)}
+.ref-tbl td{padding:8px 10px;border-bottom:1px solid var(--bor);color:var(--tx2)}
+.ref-tbl tr:last-child td{border-bottom:none}
+.ref-tbl td:first-child{font-weight:500;color:var(--tx)}
 
 /* COMING SOON */
-.coming-soon{text-align:center;padding:60px 24px}
-.coming-soon-icon{font-size:40px;margin-bottom:16px}
-.coming-soon-title{font-size:18px;font-weight:500;margin-bottom:8px}
-.coming-soon-text{font-size:14px;color:var(--text2);max-width:320px;margin:0 auto 20px;line-height:1.6}
-.soon-tag{display:inline-block;padding:4px 12px;border-radius:20px;background:var(--amber-bg);color:var(--amber);font-size:12px;font-weight:500}
+.cs{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px;text-align:center}
+.cs-ic{font-size:44px;margin-bottom:16px}
+.cs-tt{font-size:18px;font-weight:500;margin-bottom:8px}
+.cs-tx{font-size:14px;color:var(--tx2);max-width:340px;line-height:1.7;margin-bottom:16px}
+.cs-tg{display:inline-block;padding:5px 14px;border-radius:20px;background:var(--amber-bg);color:var(--amber);font-size:12px;font-weight:600}
 
 /* MOBILE NAV */
-#mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);padding:8px 0;z-index:200}
-.mob-nav-items{display:flex;justify-content:space-around}
-.mob-nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 12px;cursor:pointer;color:var(--text3);font-size:10px}
-.mob-nav-item.active{color:var(--orange)}
-.mob-nav-item svg{width:20px;height:20px}
+#mnav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--sur);border-top:1px solid var(--bor);padding:6px 0;z-index:200}
+.mn-items{display:flex;justify-content:space-around}
+.mn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 14px;cursor:pointer;color:var(--tx3);font-size:10px;border:none;background:none}
+.mn-item.on{color:var(--brand)}
+.mn-item svg{width:22px;height:22px}
 
 @media(max-width:768px){
-  #sidebar{transform:translateX(-100%)}
-  #sidebar.open{transform:translateX(0);box-shadow:4px 0 20px rgba(0,0,0,.1)}
+  #sb{transform:translateX(-100%)}
+  #sb.open{transform:translateX(0);box-shadow:4px 0 24px rgba(0,0,0,.1)}
   #main{margin-left:0}
-  #mobile-nav{display:block}
-  #mobile-menu-btn{display:flex}
-  .metrics-grid{grid-template-columns:repeat(2,1fr)}
-  .dash-grid{grid-template-columns:1fr}
-  .page{padding:16px;padding-bottom:80px}
-  #page-chat.active{height:calc(100vh - 56px - 60px)}
-  .chat-messages{padding:16px}
-  .chat-input-area,.chat-suggestions{padding-left:16px;padding-right:16px}
-  .topbar{padding:0 16px}
+  #mnav{display:block}
+  #mb-btn{display:flex}
+  .metrics{grid-template-columns:repeat(2,1fr)}
+  .g2{grid-template-columns:1fr}
+  .page{padding:14px;padding-bottom:80px}
+  #pg-chat.on{height:calc(100vh - var(--th) - 58px)}
+  .c-msgs,.chips{padding-left:14px;padding-right:14px}
+  .c-bar{padding:12px 14px}
+  .tbar{padding:0 14px}
+  .lbox{margin:16px;padding:32px 24px}
 }
 </style>
 </head>
@@ -166,363 +221,524 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <!-- LOGIN -->
 <div id="login-screen">
-  <div class="login-card">
-    <div class="nova-logo">✦</div>
-    <div class="login-title">N.O.V.A</div>
-    <div class="login-sub">JCM Enterprise Intelligence</div>
-    <div class="pin-label">Enter your access PIN</div>
-    <input type="password" class="pin-input" id="pin-input" maxlength="6" placeholder="••••" autocomplete="off" inputmode="numeric">
-    <div class="login-error" id="login-error"></div>
-    <button class="login-btn" id="login-btn" onclick="doLogin()">Access NOVA</button>
-    <div class="login-footer">JCM Enterprise · Since 2003 · Gujarat, India</div>
+  <div class="lbox">
+    <div class="l-logo">N·V·A</div>
+    <div class="l-name">N·O·V·A</div>
+    <div class="l-sub">JCM Enterprise Intelligence</div>
+    <div class="l-lbl">Access PIN</div>
+    <input type="password" id="pin" class="l-pin" maxlength="6" placeholder="••••" inputmode="numeric" autocomplete="off">
+    <div class="l-err" id="l-err"></div>
+    <button class="l-btn" id="l-btn" onclick="doLogin()">Access NOVA</button>
+    <div class="l-foot">JCM Enterprise · Gujarat, India · Est. 2003</div>
   </div>
 </div>
 
 <!-- APP -->
-<div id="app" style="display:none">
-  <div id="overlay" onclick="closeSidebar()"></div>
+<div id="app" class="hidden">
+  <div id="ov" onclick="closeSb()"></div>
 
-  <nav id="sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-logo">✦</div>
-      <div>
-        <div class="sidebar-brand-name">N.O.V.A</div>
-        <div class="sidebar-brand-sub">JCM INTELLIGENCE</div>
-      </div>
+  <nav id="sb">
+    <div class="sb-hd">
+      <div class="sb-logo">N·V·A</div>
+      <div><div class="sb-t">N·O·V·A</div><div class="sb-s">JCM Intelligence</div></div>
     </div>
-    <div class="sidebar-nav">
-      <div class="nav-section">Main</div>
-      <div class="nav-item active" data-page="dashboard" onclick="navigate('dashboard',this)"><span class="nav-icon">⌂</span>Dashboard</div>
-      <div class="nav-item" data-page="chat" onclick="navigate('chat',this)"><span class="nav-icon">◎</span>Ask NOVA</div>
-      <div class="nav-section">Analytics</div>
-      <div class="nav-item" data-page="sales" onclick="navigate('sales',this)"><span class="nav-icon">◈</span>Sales & Purchase<span class="soon-badge">Soon</span></div>
-      <div class="nav-item" data-page="stock" onclick="navigate('stock',this)"><span class="nav-icon">▣</span>Stock Alerts<span class="soon-badge">Soon</span></div>
-      <div class="nav-section">Intelligence</div>
-      <div class="nav-item" data-page="bearing" onclick="navigate('bearing',this)"><span class="nav-icon">◉</span>Bearing Knowledge<span class="soon-badge">Soon</span></div>
-      <div class="nav-item" data-page="gidc" onclick="navigate('gidc',this)"><span class="nav-icon">⊕</span>GIDC Expansion<span class="soon-badge">Soon</span></div>
-      <div class="nav-item" data-page="reports" onclick="navigate('reports',this)"><span class="nav-icon">◫</span>Reports & P&L<span class="soon-badge">Soon</span></div>
+    <div class="sb-nav">
+      <div class="sb-sec">Main</div>
+      <div class="sb-item on" data-page="dashboard" onclick="goTo('dashboard',this)"><span class="sb-ic">⌂</span>Dashboard</div>
+      <div class="sb-item" data-page="chat" onclick="goTo('chat',this)"><span class="sb-ic">◎</span>Ask NOVA</div>
+      <div class="sb-sec">Analytics</div>
+      <div class="sb-item" data-page="sales" onclick="goTo('sales',this)"><span class="sb-ic">◈</span>Sales & Purchase</div>
+      <div class="sb-item" data-page="stock" onclick="goTo('stock',this)"><span class="sb-ic">▣</span>Stock Alerts<span class="sb-bdg">Phase 2</span></div>
+      <div class="sb-sec">Intelligence</div>
+      <div class="sb-item" data-page="bearing" onclick="goTo('bearing',this)"><span class="sb-ic">◉</span>Bearing Knowledge</div>
+      <div class="sb-item" data-page="gidc" onclick="goTo('gidc',this)"><span class="sb-ic">⊕</span>GIDC Expansion<span class="sb-bdg">Phase 3</span></div>
+      <div class="sb-item" data-page="reports" onclick="goTo('reports',this)"><span class="sb-ic">◫</span>Reports & P&L<span class="sb-bdg">Phase 3</span></div>
     </div>
-    <div class="sidebar-footer">
-      <div class="sidebar-user" onclick="doLogout()">
-        <div class="user-avatar">A</div>
-        <div><div class="user-name">JCM Owner</div><div class="user-role">Tap to sign out</div></div>
+    <div class="sb-ft">
+      <div class="sb-usr" onclick="logout()">
+        <div class="sb-av" id="sb-av">A</div>
+        <div><div class="sb-un" id="sb-nm">—</div><div class="sb-ur">Tap to sign out</div></div>
       </div>
     </div>
   </nav>
 
   <div id="main">
-    <div class="topbar">
-      <div class="topbar-left">
-        <button class="topbar-btn" id="mobile-menu-btn" onclick="toggleSidebar()">
-          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+    <div class="tbar">
+      <div class="tb-l">
+        <button id="mb-btn" onclick="toggleSb()">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
         </button>
-        <div>
-          <div class="topbar-title" id="topbar-title">Good morning ☀️</div>
-          <div class="topbar-sub" id="topbar-sub">JCM Enterprise · Gujarat</div>
-        </div>
+        <div><div class="tb-tt" id="tb-tt">Dashboard</div><div class="tb-st" id="tb-st">JCM Enterprise · Gujarat</div></div>
       </div>
-      <div class="topbar-right">
-        <button class="topbar-btn" onclick="refreshDashboard()">↻ Refresh</button>
-        <a href="https://jcm-inquiry.netlify.app" target="_blank" class="topbar-btn">↗ Inquiry App</a>
+      <div class="tb-r">
+        <button class="tb-btn" onclick="refreshAll()">↻ Refresh</button>
+        <a href="https://jcm-inquiry.netlify.app" target="_blank" class="tb-btn">↗ Inquiry App</a>
       </div>
     </div>
 
     <!-- DASHBOARD -->
-    <div class="page active" id="page-dashboard">
-      <div class="nova-brief">
-        <div class="brief-label">N·O·V·A — Daily Brief</div>
-        <div class="brief-headline" id="brief-headline">Loading your brief...</div>
-        <div class="brief-text" id="brief-text">Fetching business data...</div>
+    <div class="page on" id="pg-dashboard">
+      <div class="brief">
+        <div class="br-chip">N·O·V·A Daily Brief</div>
+        <div class="br-date" id="br-dt">Loading...</div>
+        <div class="br-body" id="br-bd">Fetching your business intelligence...</div>
       </div>
-      <div class="metrics-grid" id="metrics-grid">
-        <div class="metric-card"><div class="metric-label">Total Inquiries</div><div class="sk" style="height:28px;width:40px;margin:4px 0"></div><div class="metric-sub">all time</div></div>
-        <div class="metric-card"><div class="metric-label">Orders Completed</div><div class="sk" style="height:28px;width:40px;margin:4px 0"></div><div class="metric-sub">confirmed</div></div>
-        <div class="metric-card"><div class="metric-label">Conversion Rate</div><div class="sk" style="height:28px;width:56px;margin:4px 0"></div><div class="metric-sub">inquiry → order</div></div>
-        <div class="metric-card"><div class="metric-label">Needs Follow-up</div><div class="sk" style="height:28px;width:30px;margin:4px 0"></div><div class="metric-sub">pending</div></div>
+      <div id="fu-zone"></div>
+      <div class="metrics" id="metrics">
+        <div class="mc"><div class="mc-l">Total Inquiries</div><div class="sk" style="height:26px;width:36px;margin:4px 0"></div><div class="mc-s">all time</div></div>
+        <div class="mc"><div class="mc-l">Orders Done</div><div class="sk" style="height:26px;width:36px;margin:4px 0"></div><div class="mc-s">confirmed</div></div>
+        <div class="mc"><div class="mc-l">Conversion</div><div class="sk" style="height:26px;width:50px;margin:4px 0"></div><div class="mc-s">inquiry→order</div></div>
+        <div class="mc"><div class="mc-l">Follow-up Needed</div><div class="sk" style="height:26px;width:30px;margin:4px 0"></div><div class="mc-s">pending</div></div>
       </div>
-      <div class="dash-grid">
-        <div class="card"><div class="card-title">Sales funnel</div><div id="funnel-content"><div class="sk" style="height:14px;margin-bottom:10px"></div><div class="sk" style="height:14px;margin-bottom:10px"></div><div class="sk" style="height:14px"></div></div></div>
-        <div class="card"><div class="card-title">Recent inquiries</div><div id="recent-content"><div class="sk" style="height:48px;margin-bottom:8px"></div><div class="sk" style="height:48px"></div></div></div>
+      <div class="g2">
+        <div class="card" style="margin-bottom:0"><div class="ctit">Sales funnel</div><div id="funnel"><div class="sk" style="height:12px;margin-bottom:11px"></div><div class="sk" style="height:12px;margin-bottom:11px"></div><div class="sk" style="height:12px;margin-bottom:11px"></div><div class="sk" style="height:12px;margin-bottom:11px"></div><div class="sk" style="height:12px"></div></div></div>
+        <div class="card" style="margin-bottom:0"><div class="ctit">Recent inquiries</div><div id="recent"><div class="sk" style="height:48px;margin-bottom:8px"></div><div class="sk" style="height:48px"></div></div></div>
       </div>
     </div>
 
     <!-- CHAT -->
-    <div class="page" id="page-chat">
-      <div class="chat-messages" id="chat-messages">
-        <div class="chat-msg nova">
-          <div class="msg-av nova">✦</div>
-          <div class="msg-bub">Namaste! Main NOVA hoon — JCM Enterprise ka AI intelligence system.
+    <div class="page" id="pg-chat">
+      <div class="c-msgs" id="c-msgs">
+        <div class="c-msg nova">
+          <div class="c-av n">✦</div>
+          <div class="c-bub">Namaste! Main NOVA hoon — JCM Enterprise ka AI intelligence system. 🚀
 
-Aap mujhse kuch bhi pooch sakte hain — inquiries, bearing recommendations, GIDC strategy, stock planning, ya koi bhi business sawaal.
+Aap mujhse kuch bhi pooch sakte hain:
+- Inquiries aur follow-ups
+- Bearing recommendations aur cross-reference
+- GIDC strategy aur expansion
+- Customer buying patterns
+- Stock planning
 
-Kya help chahiye? 🚀</div>
+Kya jaanna chahte ho?</div>
         </div>
       </div>
-      <div class="chat-suggestions" id="chat-suggestions">
-        <div class="chip" onclick="useSuggestion(this)">Today's follow-ups?</div>
-        <div class="chip" onclick="useSuggestion(this)">Which bearing for textile machines?</div>
-        <div class="chip" onclick="useSuggestion(this)">How to approach GIDC Sachin?</div>
-        <div class="chip" onclick="useSuggestion(this)">SKF 6205 FAG equivalent?</div>
-        <div class="chip" onclick="useSuggestion(this)">Best selling products this month?</div>
+      <div class="chips" id="chips">
+        <div class="chip" onclick="useChip(this)">Today's follow-ups?</div>
+        <div class="chip" onclick="useChip(this)">Which bearing for textile machines?</div>
+        <div class="chip" onclick="useChip(this)">SKF 6205 FAG equivalent?</div>
+        <div class="chip" onclick="useChip(this)">How to expand in GIDC Sachin?</div>
+        <div class="chip" onclick="useChip(this)">Best products to stock now?</div>
       </div>
-      <div class="chat-input-area">
-        <textarea class="chat-input" id="chat-input" placeholder="Ask NOVA anything..." rows="1" onkeydown="handleKey(event)" oninput="resize(this)"></textarea>
-        <button class="send-btn" id="send-btn" onclick="sendChat()">
-          <svg width="16" height="16" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+      <div class="c-bar">
+        <textarea class="c-ta" id="c-in" placeholder="Ask NOVA anything..." rows="1" onkeydown="cKey(event)" oninput="aResize(this)"></textarea>
+        <button class="s-btn" id="s-btn" onclick="sendMsg()">
+          <svg width="15" height="15" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
         </button>
       </div>
     </div>
 
-    <!-- COMING SOON PAGES -->
-    <div class="page" id="page-sales"><div class="coming-soon"><div class="coming-soon-icon">📊</div><div class="coming-soon-title">Sales & Purchase Analysis</div><div class="coming-soon-text">Upload your Busy exports and NOVA will analyse margins, top customers, and revenue trends.</div><div class="soon-tag">Phase 2 — Coming soon</div></div></div>
-    <div class="page" id="page-stock"><div class="coming-soon"><div class="coming-soon-icon">📦</div><div class="coming-soon-title">Stock Alerts & Reorder</div><div class="coming-soon-text">NOVA will predict when to restock, flag dead stock, and suggest optimal quantities per location.</div><div class="soon-tag">Phase 2 — Coming soon</div></div></div>
-    <div class="page" id="page-bearing"><div class="coming-soon"><div class="coming-soon-icon">🧠</div><div class="coming-soon-title">Bearing Knowledge Base</div><div class="coming-soon-text">Cross-reference bearings, identify by machine, diagnose failures, find SKF-FAG equivalents instantly.</div><div class="soon-tag">Phase 3 — Coming soon</div></div></div>
-    <div class="page" id="page-gidc"><div class="coming-soon"><div class="coming-soon-icon">📍</div><div class="coming-soon-title">GIDC Expansion Intelligence</div><div class="coming-soon-text">Map each GIDC — industries, bearing demand, competition, and which factories to target first.</div><div class="soon-tag">Phase 3 — Coming soon</div></div></div>
-    <div class="page" id="page-reports"><div class="coming-soon"><div class="coming-soon-icon">📈</div><div class="coming-soon-title">Reports & P&L</div><div class="coming-soon-text">Monthly business health, goal tracker, conversion reports, and AI growth recommendations.</div><div class="soon-tag">Phase 3 — Coming soon</div></div></div>
+    <!-- SALES & PURCHASE -->
+    <div class="page" id="pg-sales">
+      <div class="tabs">
+        <button class="t-btn on" onclick="swTab('s-tab','p-tab',this)">📤 Sales Invoices</button>
+        <button class="t-btn" onclick="swTab('p-tab','s-tab',this)">📥 Purchase Invoices</button>
+      </div>
+      <div id="s-tab">
+        <div class="card">
+          <div class="ctit">Upload Sales Invoice (Busy Export)</div>
+          <div class="upz" id="s-zone" onclick="document.getElementById('s-file').click()" ondragover="dOver(event,'s-zone')" ondragleave="dLeave('s-zone')" ondrop="dDrop(event,'sales')">
+            <input type="file" id="s-file" style="display:none" accept=".xlsx,.xls,.csv" onchange="handleFile(event,'sales')">
+            <div class="upz-ic">📊</div>
+            <div class="upz-tt">Click or drag Busy Excel export here</div>
+            <div class="upz-st">Busy → Reports → Sales Register → Export Excel</div>
+          </div>
+          <div id="s-prev"></div>
+        </div>
+        <div class="card">
+          <div class="ctit">Saved Sales Invoices</div>
+          <div id="s-list"><div style="color:var(--tx3);font-size:13px">Loading...</div></div>
+        </div>
+      </div>
+      <div id="p-tab" class="hidden">
+        <div class="card">
+          <div class="ctit">Upload Purchase Invoice (Busy Export)</div>
+          <div class="upz" id="p-zone" onclick="document.getElementById('p-file').click()" ondragover="dOver(event,'p-zone')" ondragleave="dLeave('p-zone')" ondrop="dDrop(event,'purchase')">
+            <input type="file" id="p-file" style="display:none" accept=".xlsx,.xls,.csv" onchange="handleFile(event,'purchase')">
+            <div class="upz-ic">📋</div>
+            <div class="upz-tt">Click or drag Busy Excel export here</div>
+            <div class="upz-st">Busy → Reports → Purchase Register → Export Excel</div>
+          </div>
+          <div id="p-prev"></div>
+        </div>
+        <div class="card">
+          <div class="ctit">Saved Purchase Invoices</div>
+          <div id="p-list"><div style="color:var(--tx3);font-size:13px">Loading...</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STOCK -->
+    <div class="page" id="pg-stock">
+      <div class="cs"><div class="cs-ic">📦</div><div class="cs-tt">Stock Alerts & Reorder</div><div class="cs-tx">Once sales and purchase invoices are uploaded, NOVA will predict restock timing, flag dead stock, and suggest optimal quantities per GIDC location.</div><div class="cs-tg">Phase 2 — Coming soon</div></div>
+    </div>
+
+    <!-- BEARING KNOWLEDGE -->
+    <div class="page" id="pg-bearing">
+      <div class="card">
+        <div class="ctit">Ask about any bearing or machine</div>
+        <div class="b-row">
+          <input type="text" id="b-q" class="b-in" placeholder="e.g. Which bearing for textile spindle? OR SKF 6205 FAG equivalent?" onkeydown="if(event.key==='Enter')askBearing()">
+          <button class="btn-p" onclick="askBearing()">Ask NOVA</button>
+        </div>
+        <div class="b-ans" id="b-ans"></div>
+      </div>
+      <div class="card">
+        <div class="ctit">Quick reference</div>
+        <table class="ref-tbl"><thead><tr><th>Series</th><th>Type</th><th>Common Use</th></tr></thead><tbody id="b-ref"></tbody></table>
+      </div>
+    </div>
+
+    <!-- GIDC -->
+    <div class="page" id="pg-gidc">
+      <div class="cs"><div class="cs-ic">📍</div><div class="cs-tt">GIDC Expansion Intelligence</div><div class="cs-tx">Map each GIDC — industries present, bearing demand patterns, competition density, and which factories to target before entering a new location.</div><div class="cs-tg">Phase 3 — Coming soon</div></div>
+    </div>
+
+    <!-- REPORTS -->
+    <div class="page" id="pg-reports">
+      <div class="cs"><div class="cs-ic">📈</div><div class="cs-tt">Reports & P&L</div><div class="cs-tx">Monthly revenue, gross margin per product, salesperson performance, conversion trends, and AI growth recommendations — all in one view.</div><div class="cs-tg">Phase 3 — Coming soon</div></div>
+    </div>
   </div>
 
   <!-- MOBILE NAV -->
-  <div id="mobile-nav">
-    <div class="mob-nav-items">
-      <div class="mob-nav-item active" data-page="dashboard" onclick="navigate('dashboard',this,true)"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Home</span></div>
-      <div class="mob-nav-item" data-page="chat" onclick="navigate('chat',this,true)"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span>Ask NOVA</span></div>
-      <div class="mob-nav-item" data-page="sales" onclick="navigate('sales',this,true)"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><span>Sales</span></div>
-      <div class="mob-nav-item" data-page="reports" onclick="navigate('reports',this,true)"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/></svg><span>Reports</span></div>
+  <nav id="mnav">
+    <div class="mn-items">
+      <button class="mn-item on" data-page="dashboard" onclick="goTo('dashboard',this,true)">
+        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Home
+      </button>
+      <button class="mn-item" data-page="chat" onclick="goTo('chat',this,true)">
+        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Ask NOVA
+      </button>
+      <button class="mn-item" data-page="sales" onclick="goTo('sales',this,true)">
+        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8"/></svg>Invoices
+      </button>
+      <button class="mn-item" data-page="bearing" onclick="goTo('bearing',this,true)">
+        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>Bearings
+      </button>
     </div>
-  </div>
+  </nav>
 </div>
 
 <script>
-const PIN = '1234'; // ← Change this to your preferred PIN
-const API = '/.netlify/functions/nova';
-let chatHistory = [];
-let sheetData = null;
-let busy = false;
+'use strict';
+const API='/.netlify/functions/nova';
+const STAGES=['New Inquiry','Rate Ask','Rate Given','Order Complete','Lost'];
+const SC={'New Inquiry':'#7F77DD','Rate Ask':'#3882D4','Rate Given':'#D4820A','Order Complete':'#3A7D0A','Lost':'#C02020'};
+const PC={'Order Complete':'p-done','Rate Given':'p-rg','Rate Ask':'p-ra','New Inquiry':'p-new','Lost':'p-lost'};
+const BREF=[['6000/6200/6300','Deep Groove Ball','Electric motors, pumps, fans, compressors, textile spindles'],['30000 series','Taper Roller','Gearboxes, conveyors, rolling mills, heavy machinery'],['NU/NJ series','Cylindrical Roller','Machine tools, heavy industrial equipment'],['NA/NK series','Needle','Textile machines, packaging machines, two-wheelers'],['SY/SNL','Pedestal Block','Fans, blowers, agriculture equipment'],['51000 series','Thrust','Vertical shafts, cranes, press machines'],['22000 series','Spherical Roller','Mining, paper mills, heavy conveyors']];
 
-// AUTH
-function checkAuth(){
-  if(sessionStorage.getItem('nova_auth')==='true') showApp();
+let session=null,rows=[],chatHist=[],chatBusy=false,parsedInv=null,bBusy=false;
+
+// ── AUTH ──────────────────────────────────────────────────────────
+async function doLogin(){
+  const pin=document.getElementById('pin').value.trim();
+  const errEl=document.getElementById('l-err');
+  const btn=document.getElementById('l-btn');
+  errEl.textContent='';
+  if(!pin){errEl.textContent='Enter your PIN';return;}
+  btn.disabled=true;btn.textContent='Accessing...';
+  try{
+    const d=await api({action:'login',pin});
+    if(!d.success)throw new Error(d.error||'Wrong PIN');
+    session={token:d.token,userId:d.userId,name:d.name,role:d.role};
+    sessionStorage.setItem('nova_s',JSON.stringify(session));
+    showApp();
+  }catch(e){
+    errEl.textContent=e.message||'Wrong PIN. Try again.';
+    const p=document.getElementById('pin');
+    p.classList.add('shake');setTimeout(()=>p.classList.remove('shake'),350);
+    p.value='';p.focus();
+    btn.disabled=false;btn.textContent='Access NOVA';
+  }
 }
 
-function doLogin(){
-  const pin = document.getElementById('pin-input').value.trim();
-  const err = document.getElementById('login-error');
-  const inp = document.getElementById('pin-input');
-  const btn = document.getElementById('login-btn');
-  err.textContent = '';
-  inp.classList.remove('error');
-  if(!pin){ err.textContent='Enter your PIN'; inp.classList.add('error'); return; }
-  if(pin !== PIN){ err.textContent='Wrong PIN. Try again.'; inp.classList.add('error'); inp.value=''; inp.focus(); return; }
-  btn.disabled=true; btn.textContent='Accessing...';
-  setTimeout(()=>{ sessionStorage.setItem('nova_auth','true'); showApp(); },350);
+function logout(){
+  if(!confirm('Sign out of NOVA?'))return;
+  sessionStorage.removeItem('nova_s');location.reload();
 }
-
-function doLogout(){ sessionStorage.removeItem('nova_auth'); location.reload(); }
 
 function showApp(){
-  document.getElementById('login-screen').style.display='none';
-  document.getElementById('app').style.display='flex';
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  document.getElementById('sb-nm').textContent=session.name;
+  document.getElementById('sb-av').textContent=session.name[0].toUpperCase();
   setGreeting();
-  loadDashboard();
+  loadDash();
+  loadInvList('sales');
+  loadInvList('purchase');
+  renderBRef();
 }
 
-document.getElementById('pin-input').addEventListener('keydown', e=>{
-  if(e.key==='Enter') doLogin();
-  document.getElementById('pin-input').classList.remove('error');
-  document.getElementById('login-error').textContent='';
-});
-
-// NAVIGATION
-const PAGE_TITLES = {
-  dashboard:['Good morning ☀️','JCM Enterprise · Gujarat'],
-  chat:['Ask NOVA','AI Intelligence Assistant'],
-  sales:['Sales & Purchase','Phase 2 — Coming soon'],
-  stock:['Stock Alerts','Phase 2 — Coming soon'],
-  bearing:['Bearing Knowledge','Phase 3 — Coming soon'],
-  gidc:['GIDC Expansion','Phase 3 — Coming soon'],
-  reports:['Reports & P&L','Phase 3 — Coming soon']
-};
-
-function navigate(page, el, isMobile=false){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  const target = document.getElementById('page-'+page);
-  if(target) target.classList.add('active');
-  document.querySelectorAll('#sidebar .nav-item').forEach(i=>i.classList.remove('active'));
-  document.querySelectorAll('.mob-nav-item').forEach(i=>i.classList.remove('active'));
-  document.querySelector(`[data-page="${page}"]`)?.classList.add('active');
-  if(!isMobile) closeSidebar();
-  const t = PAGE_TITLES[page]||['NOVA',''];
-  setGreeting(t[0]); 
-  document.getElementById('topbar-sub').textContent = t[1];
-}
-
-function toggleSidebar(){
-  document.getElementById('sidebar').classList.toggle('open');
-  document.getElementById('overlay').classList.toggle('show');
-}
-
-function closeSidebar(){
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('overlay').classList.remove('show');
-}
-
-function setGreeting(override){
-  if(override && override !== 'Good morning ☀️'){ document.getElementById('topbar-title').textContent=override; return; }
-  const h = new Date().getHours();
-  document.getElementById('topbar-title').textContent = h<12?'Good morning ☀️':h<17?'Good afternoon ☀️':'Good evening 🌙';
-}
-
-// DASHBOARD
-async function loadDashboard(){
+function checkSess(){
   try{
-    const res = await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'fetchSheet'})});
-    const d = await res.json();
-    if(d.success && d.csv){ sheetData=parseCSV(d.csv); renderDashboard(sheetData); }
-    else renderEmpty();
-    generateBrief(sheetData);
-  }catch{ renderEmpty(); generateBrief(null); }
+    const s=JSON.parse(sessionStorage.getItem('nova_s')||'null');
+    if(s?.token&&s?.userId){session=s;showApp();}
+  }catch{}
 }
 
-function refreshDashboard(){
-  document.getElementById('brief-headline').textContent='Refreshing...';
-  document.getElementById('brief-text').textContent='';
-  loadDashboard();
+// ── API ───────────────────────────────────────────────────────────
+async function api(body){
+  if(session&&body.action!=='login'){body.token=session.token;body.userId=session.userId;}
+  const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const d=await res.json();
+  if(res.status===401){sessionStorage.removeItem('nova_s');location.reload();}
+  return d;
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────
+const PM={dashboard:['Dashboard','JCM Enterprise · Gujarat'],chat:['Ask NOVA','AI Intelligence Assistant'],sales:['Sales & Purchase','Invoice management'],stock:['Stock Alerts','Phase 2 — Coming soon'],bearing:['Bearing Knowledge','Cross-reference & recommendations'],gidc:['GIDC Expansion','Phase 3 — Coming soon'],reports:['Reports & P&L','Phase 3 — Coming soon']};
+
+function goTo(page,el,mob=false){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.getElementById('pg-'+page)?.classList.add('on');
+  document.querySelectorAll('.sb-item,.mn-item').forEach(i=>i.classList.remove('on'));
+  document.querySelectorAll(`[data-page="${page}"]`).forEach(i=>i.classList.add('on'));
+  if(!mob)closeSb();
+  const[t,s]=PM[page]||['NOVA',''];
+  document.getElementById('tb-tt').textContent=page==='dashboard'?getG():t;
+  document.getElementById('tb-st').textContent=s;
+}
+function toggleSb(){document.getElementById('sb').classList.toggle('open');document.getElementById('ov').classList.toggle('on');}
+function closeSb(){document.getElementById('sb').classList.remove('open');document.getElementById('ov').classList.remove('on');}
+function getG(){const h=new Date().getHours();return h<12?'Good morning ☀️':h<17?'Good afternoon ☀️':'Good evening 🌙';}
+function setGreeting(){document.getElementById('tb-tt').textContent=getG();}
+function refreshAll(){loadDash();loadInvList('sales');loadInvList('purchase');}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────
+async function loadDash(){
+  try{
+    const d=await api({action:'fetchSheet'});
+    if(d.success&&d.csv){rows=parseCSV(d.csv);renderDash(rows);}
+    else renderEmpty();
+    genBrief(rows);
+  }catch{renderEmpty();genBrief(null);}
 }
 
 function parseCSV(csv){
   const lines=csv.trim().split('\n');
-  if(lines.length<2) return [];
-  const headers=parseLine(lines[0]);
-  return lines.slice(1).map(l=>{ const v=parseLine(l); const r={}; headers.forEach((h,i)=>r[h]=v[i]||''); return r; }).filter(r=>r.company);
+  if(lines.length<2)return[];
+  const h=csvL(lines[0]);
+  return lines.slice(1).map(l=>{const v=csvL(l);const r={};h.forEach((k,i)=>r[k]=(v[i]||'').replace(/^"|"$/g,''));return r;}).filter(r=>r.company||r.id);
 }
+function csvL(line){const o=[];let c='',q=false;for(let i=0;i<line.length;i++){const ch=line[i];if(ch==='"'){if(q&&line[i+1]==='"'){c+='"';i++;}else q=!q;}else if(ch===','&&!q){o.push(c);c='';}else c+=ch;}o.push(c);return o;}
 
-function parseLine(line){
-  const res=[]; let cur='',inQ=false;
-  for(let i=0;i<line.length;i++){
-    const c=line[i];
-    if(c==='"'){ if(inQ&&line[i+1]==='"'){cur+='"';i++;} else inQ=!inQ; }
-    else if(c===','&&!inQ){res.push(cur);cur='';}
-    else cur+=c;
-  }
-  res.push(cur); return res;
-}
+function renderDash(data){
+  const S=Object.fromEntries(STAGES.map(s=>[s,0]));
+  data.forEach(r=>{const s=r.stage||'New Inquiry';if(S[s]!==undefined)S[s]++;else S['New Inquiry']++;});
+  const tot=data.length,done=S['Order Complete'],fu=S['Rate Given']+S['Rate Ask'],rate=tot?Math.round(done/tot*100):0;
 
-function renderDashboard(rows){
-  const S={'New Inquiry':0,'Rate Ask':0,'Rate Given':0,'Order Complete':0,'Lost':0};
-  rows.forEach(r=>{ if(S[r.stage]!==undefined) S[r.stage]++; else S['New Inquiry']++; });
-  const total=rows.length, done=S['Order Complete'], rate=total?Math.round(done/total*100):0, fu=S['Rate Given']+S['Rate Ask'];
-  
-  document.getElementById('metrics-grid').innerHTML=`
-    <div class="metric-card"><div class="metric-label">Total Inquiries</div><div class="metric-val">${total}</div><div class="metric-sub">all time</div></div>
-    <div class="metric-card"><div class="metric-label">Orders Completed</div><div class="metric-val orange">${done}</div><div class="metric-sub">confirmed</div></div>
-    <div class="metric-card"><div class="metric-label">Conversion Rate</div><div class="metric-val">${rate}%</div><div class="metric-sub">inquiry → order</div></div>
-    <div class="metric-card"><div class="metric-label">Needs Follow-up</div><div class="metric-val">${fu}</div><div class="metric-sub">pending</div></div>
-  `;
-  
-  const COLORS={'New Inquiry':'#7F77DD','Rate Ask':'#378ADD','Rate Given':'#EF9F27','Order Complete':'#639922','Lost':'#E24B4A'};
+  document.getElementById('metrics').innerHTML=[
+    ['Total Inquiries',tot,'all time',''],
+    ['Orders Done',done,'confirmed','ac'],
+    ['Conversion',rate+'%','inquiry → order',''],
+    ['Follow-up Needed',fu,'pending',fu>0?'ac':''],
+  ].map(([l,v,s,c])=>`<div class="mc"><div class="mc-l">${l}</div><div class="mc-v ${c}">${v}</div><div class="mc-s">${s}</div></div>`).join('');
+
+  const needFU=data.filter(r=>r.stage==='Rate Given'||r.stage==='Rate Ask');
+  document.getElementById('fu-zone').innerHTML=needFU.length?`<div class="fu-alert"><div class="fu-ic">⚡</div><div><div class="fu-tt">Follow-up needed — ${needFU.length} inquir${needFU.length>1?'ies':'y'}</div><div class="fu-it">${needFU.slice(0,3).map(r=>`${esc(r.company)} — ${r.stage}`).join('\n')}${needFU.length>3?`\n+${needFU.length-3} more`:''}</div></div></div>`:'';
+
   const maxV=Math.max(...Object.values(S),1);
-  document.getElementById('funnel-content').innerHTML=Object.entries(S).map(([s,c])=>`
-    <div class="funnel-row">
-      <div class="funnel-top"><span>${s}</span><span style="font-weight:500;color:var(--text)">${c}</span></div>
-      <div class="funnel-track"><div class="funnel-fill" style="width:${c?Math.max(c/maxV*100,6):0}%;background:${COLORS[s]}"></div></div>
-    </div>`).join('');
+  document.getElementById('funnel').innerHTML=STAGES.map(s=>`<div class="fi"><div class="fi-top"><span>${s}</span><span>${S[s]}</span></div><div class="fi-track"><div class="fi-bar" style="width:${S[s]?Math.max(S[s]/maxV*100,5):0}%;background:${SC[s]}"></div></div></div>`).join('');
 
-  const SCLS={'Order Complete':'s-complete','Rate Given':'s-rate-given','Rate Ask':'s-rate-ask','New Inquiry':'s-new','Lost':'s-lost'};
-  const recent=[...rows].reverse().slice(0,5);
-  document.getElementById('recent-content').innerHTML=recent.length?recent.map(r=>{
-    let prods=[]; try{prods=JSON.parse(r.products||'[]');}catch{}
-    const fp=prods[0]?.name||'—';
-    return `<div class="inq-row"><div><div class="inq-company">${r.company||'—'}</div><div class="inq-product">${fp}${prods.length>1?` +${prods.length-1} more`:''}</div></div><div class="stage-pill ${SCLS[r.stage]||'s-new'}">${r.stage||'New Inquiry'}</div></div>`;
-  }).join(''):'<div style="color:var(--text3);font-size:13px;text-align:center;padding:20px">No inquiries yet</div>';
+  const rec=[...data].reverse().slice(0,5);
+  document.getElementById('recent').innerHTML=rec.length?rec.map(r=>{let p=[];try{p=JSON.parse(r.products||'[]');}catch{}const fp=p[0]?.name||'—';return`<div class="ir"><div><div class="ir-co">${esc(r.company||'—')}</div><div class="ir-pr">${esc(fp)}${p.length>1?` +${p.length-1}`:''}</div></div><div class="pill ${PC[r.stage]||'p-new'}">${r.stage||'New'}</div></div>`}).join(''):'<div style="color:var(--tx3);font-size:13px;padding:12px 0;text-align:center">No inquiries yet</div>';
 }
 
 function renderEmpty(){
-  document.getElementById('metrics-grid').innerHTML=`
-    <div class="metric-card"><div class="metric-label">Total Inquiries</div><div class="metric-val">—</div><div class="metric-sub">make sheet public</div></div>
-    <div class="metric-card"><div class="metric-label">Orders Completed</div><div class="metric-val orange">—</div><div class="metric-sub">make sheet public</div></div>
-    <div class="metric-card"><div class="metric-label">Conversion Rate</div><div class="metric-val">—</div><div class="metric-sub">make sheet public</div></div>
-    <div class="metric-card"><div class="metric-label">Needs Follow-up</div><div class="metric-val">—</div><div class="metric-sub">make sheet public</div></div>
-  `;
-  document.getElementById('funnel-content').innerHTML='<div style="color:var(--text3);font-size:13px;text-align:center;padding:16px 0">Set Google Sheet to public<br>to see live data</div>';
-  document.getElementById('recent-content').innerHTML='<div style="color:var(--text3);font-size:13px;text-align:center;padding:20px">Set Google Sheet to public<br>to see live inquiries</div>';
+  document.getElementById('metrics').innerHTML=['Total Inquiries','Orders Done','Conversion','Follow-up Needed'].map(l=>`<div class="mc"><div class="mc-l">${l}</div><div class="mc-v" style="color:var(--tx3)">—</div><div class="mc-s" style="color:var(--tx3)">Sheet not public</div></div>`).join('');
+  document.getElementById('funnel').innerHTML='<div style="color:var(--tx3);font-size:13px;text-align:center;padding:14px 0">Set Google Sheet to public view to see live data</div>';
+  document.getElementById('recent').innerHTML='<div style="color:var(--tx3);font-size:13px;text-align:center;padding:14px 0">Set Google Sheet to public view</div>';
 }
 
-async function generateBrief(rows){
-  const date=new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'});
-  document.getElementById('brief-headline').textContent=date;
-  document.getElementById('brief-text').textContent='Generating your brief...';
+async function genBrief(data){
+  const dt=new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('br-dt').textContent=dt;
+  document.getElementById('br-bd').textContent='Generating your brief...';
   let ctx='';
-  if(rows&&rows.length){
-    const S={'New Inquiry':0,'Rate Ask':0,'Rate Given':0,'Order Complete':0,'Lost':0};
-    rows.forEach(r=>{if(S[r.stage]!==undefined)S[r.stage]++;});
-    ctx=`${rows.length} inquiries. Stages: ${JSON.stringify(S)}. Recent: ${JSON.stringify(rows.slice(-3).map(r=>({company:r.company,stage:r.stage})))}`;
+  if(data?.length){
+    const S=Object.fromEntries(STAGES.map(s=>[s,0]));
+    data.forEach(r=>{if(S[r.stage]!==undefined)S[r.stage]++;});
+    const fu=data.filter(r=>r.stage==='Rate Given'||r.stage==='Rate Ask').slice(0,3);
+    ctx=`Total: ${data.length} inquiries. Stages: ${JSON.stringify(S)}. Needs follow-up: ${JSON.stringify(fu.map(r=>({company:r.company,stage:r.stage})))}`;
   }
   try{
-    const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'chat',context:ctx,messages:[{role:'user',content:`Write a sharp morning brief for JCM Enterprise. Date: ${date}. Under 55 words. ${rows?'Use real data. Mention company names.':'No data yet — give one powerful sales tip.'} End with one clear action for today.`}]})});
-    const d=await res.json();
-    document.getElementById('brief-text').textContent=d.text||'Ready to grow. Focus on follow-ups today. 💪';
-  }catch{
-    document.getElementById('brief-text').textContent='Stay focused. Follow up on pending inquiries and keep the pipeline moving. 💪';
-  }
+    const d=await api({action:'chat',context:ctx,messages:[{role:'user',content:`Write a sharp morning brief for JCM Enterprise. Date: ${dt}. Max 3 sentences. ${data?.length?'Reference real data, mention company names.':'No inquiry data yet — give one powerful sales action tip.'} End with ONE specific action for today.`}]});
+    document.getElementById('br-bd').textContent=d.text||'Stay sharp. Follow up on every pending inquiry today. 💪';
+  }catch{document.getElementById('br-bd').textContent='Stay focused. Follow up on all pending inquiries today. 💪';}
 }
 
-// CHAT
-async function sendChat(){
-  const inp=document.getElementById('chat-input');
+// ── CHAT ──────────────────────────────────────────────────────────
+async function sendMsg(){
+  const inp=document.getElementById('c-in');
   const msg=inp.value.trim();
-  if(!msg||busy) return;
-  inp.value=''; inp.style.height='auto';
-  document.getElementById('chat-suggestions').style.display='none';
-  addMsg('user',msg);
-  chatHistory.push({role:'user',content:msg});
-  showTyping(); busy=true;
-  document.getElementById('send-btn').disabled=true;
+  if(!msg||chatBusy)return;
+  inp.value='';inp.style.height='auto';
+  document.getElementById('chips').style.display='none';
+  addMsg('u',msg);
+  chatHist.push({role:'user',content:msg});
+  showTyp();chatBusy=true;
+  document.getElementById('s-btn').disabled=true;
   let ctx='';
-  if(sheetData) ctx='Inquiries: '+JSON.stringify(sheetData.map(r=>({company:r.company,stage:r.stage,salesName:r.salesName,products:JSON.parse(r.products||'[]').map(p=>p.name)})));
+  if(rows.length)ctx='Inquiries: '+JSON.stringify(rows.map(r=>{let p=[];try{p=JSON.parse(r.products||'[]');}catch{}return{company:r.company,stage:r.stage,salesName:r.salesName,products:p.map(x=>x.name)}}));
   try{
-    const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'chat',messages:chatHistory,context:ctx})});
-    const d=await res.json();
-    removeTyping();
-    const reply=d.text||d.error||'Error. Try again.';
+    const d=await api({action:'chat',messages:chatHist,context:ctx});
+    removeTyp();
+    const reply=d.text||d.error||'Something went wrong. Please try again.';
     addMsg('nova',reply);
-    chatHistory.push({role:'assistant',content:reply});
-  }catch{
-    removeTyping();
-    addMsg('nova','Network error. Check connection and try again.');
-  }
-  busy=false;
-  document.getElementById('send-btn').disabled=false;
-  inp.focus();
+    chatHist.push({role:'assistant',content:reply});
+  }catch{removeTyp();addMsg('nova','Network error. Please check connection and try again.');}
+  chatBusy=false;document.getElementById('s-btn').disabled=false;
+  document.getElementById('c-in').focus();
 }
 
-function useSuggestion(el){ document.getElementById('chat-input').value=el.textContent; sendChat(); }
+function useChip(el){document.getElementById('c-in').value=el.textContent;sendMsg();}
+function cKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}}
+function aResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px';}
 
 function addMsg(role,text){
-  const c=document.getElementById('chat-messages');
+  const c=document.getElementById('c-msgs');
   const d=document.createElement('div');
-  d.className='chat-msg '+role;
-  d.innerHTML=`<div class="msg-av ${role}">${role==='nova'?'✦':'A'}</div><div class="msg-bub">${esc(text)}</div>`;
-  c.appendChild(d); c.scrollTop=c.scrollHeight;
+  d.className='c-msg '+(role==='nova'?'nova':'u');
+  d.innerHTML=`<div class="c-av ${role==='nova'?'n':'u'}">${role==='nova'?'✦':session?.name?.[0]?.toUpperCase()||'U'}</div><div class="c-bub">${esc(text)}</div>`;
+  c.appendChild(d);c.scrollTop=c.scrollHeight;
+}
+function showTyp(){
+  const c=document.getElementById('c-msgs');
+  const d=document.createElement('div');
+  d.className='c-msg nova';d.id='typ';
+  d.innerHTML=`<div class="c-av n">✦</div><div class="c-bub"><div class="typing"><div class="td"></div><div class="td"></div><div class="td"></div></div></div>`;
+  c.appendChild(d);c.scrollTop=c.scrollHeight;
+}
+function removeTyp(){document.getElementById('typ')?.remove();}
+
+// ── INVOICE UPLOAD ────────────────────────────────────────────────
+function swTab(show,hide,btn){
+  document.getElementById(show).classList.remove('hidden');
+  document.getElementById(hide).classList.add('hidden');
+  document.querySelectorAll('.t-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function dOver(e,z){e.preventDefault();document.getElementById(z).classList.add('drag');}
+function dLeave(z){document.getElementById(z).classList.remove('drag');}
+function dDrop(e,type){e.preventDefault();dLeave((type==='sales'?'s':'p')+'-zone');const f=e.dataTransfer?.files?.[0];if(f)processFile(f,type);}
+function handleFile(e,type){const f=e.target.files?.[0];if(f)processFile(f,type);}
+
+function processFile(file,type){
+  const r=new FileReader();
+  r.onload=(e)=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:'array'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const json=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+      parsedInv=parseInv(json,type);
+      showPrev(parsedInv,type);
+    }catch{
+      document.getElementById((type==='sales'?'s':'p')+'-prev').innerHTML=`<div style="color:var(--red);font-size:13px;margin-top:10px">⚠️ Could not read file. Make sure it's a valid Excel export from Busy.</div>`;
+    }
+  };
+  r.readAsArrayBuffer(file);
 }
 
-function showTyping(){
-  const c=document.getElementById('chat-messages');
-  const d=document.createElement('div');
-  d.className='chat-msg nova'; d.id='typing';
-  d.innerHTML=`<div class="msg-av nova">✦</div><div class="msg-bub"><div class="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
-  c.appendChild(d); c.scrollTop=c.scrollHeight;
+function parseInv(rows,type){
+  let hi=0;
+  for(let i=0;i<Math.min(10,rows.length);i++){
+    const r=rows[i].map(c=>String(c).toLowerCase());
+    if(r.some(c=>c.includes('voucher')||c.includes('invoice')||c.includes('party')||c.includes('item')||c.includes('bill'))){hi=i;break;}
+  }
+  const hdrs=rows[hi].map(c=>String(c).trim().toLowerCase());
+  const data=rows.slice(hi+1).filter(r=>r.some(c=>String(c).trim()));
+  const get=(row,...keys)=>{for(const k of keys){const idx=hdrs.findIndex(h=>h.includes(k));if(idx!==-1&&row[idx]!==undefined&&String(row[idx]).trim())return String(row[idx]).trim();}return'';};
+  const nk=type==='sales'?'customer_name':'supplier_name';
+  return data.slice(0,100).map((row,i)=>({
+    invoice_number:get(row,'voucher','invoice no','bill no','ref')||`INV-${i+1}`,
+    invoice_date:get(row,'date'),
+    [nk]:get(row,'party','customer','supplier','vendor','name','buyer'),
+    items:JSON.stringify([{name:get(row,'item','product','description','particulars'),qty:get(row,'qty','quantity','nos'),rate:get(row,'rate','price','mrp'),amount:get(row,'amount','value','basic')}]),
+    subtotal:parseFloat(get(row,'gross','subtotal','basic amount','taxable'))||0,
+    gst_amount:(parseFloat(get(row,'cgst','cgst amt')||0))+(parseFloat(get(row,'sgst','sgst amt')||0))+(parseFloat(get(row,'igst','igst amt')||0)),
+    total_amount:parseFloat(get(row,'net','total','grand total','final'))||0,
+    ...(type==='sales'?{salesperson:get(row,'sales','agent','user','by'),delivery_by:get(row,'delivery','deliver','transport')}:{})
+  })).filter(r=>r[nk]);
 }
 
-function removeTyping(){ const t=document.getElementById('typing'); if(t) t.remove(); }
+function showPrev(data,type){
+  const el=document.getElementById((type==='sales'?'s':'p')+'-prev');
+  if(!data?.length){el.innerHTML=`<div style="color:var(--amber);font-size:13px;margin-top:12px">⚠️ No matching data found. Please check the file is a Busy Sales/Purchase Register export.</div>`;return;}
+  const nk=type==='sales'?'customer_name':'supplier_name';
+  el.innerHTML=`
+    <div style="margin-top:6px;font-size:12px;color:var(--tx2);margin-bottom:8px">${data.length} rows detected · Preview of first 5</div>
+    <div class="ptw"><table class="pt">
+      <thead><tr><th>Invoice #</th><th>${type==='sales'?'Customer':'Supplier'}</th><th>Date</th><th>Total</th></tr></thead>
+      <tbody>${data.slice(0,5).map(r=>`<tr><td>${esc(r.invoice_number)}</td><td>${esc(r[nk])}</td><td>${esc(r.invoice_date)}</td><td>₹${(r.total_amount||0).toLocaleString('en-IN')}</td></tr>`).join('')}</tbody>
+    </table></div>
+    <div class="p-acts">
+      <button class="btn-p" id="${type}-save-btn" onclick="saveInv('${type}')">Save ${data.length} invoices to NOVA</button>
+      <button class="btn-s" onclick="clearPrev('${type}')">Clear</button>
+      <span class="smsg" id="${type}-smsg"></span>
+    </div>`;
+}
 
-function handleKey(e){ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat();} }
+function clearPrev(type){
+  document.getElementById((type==='sales'?'s':'p')+'-prev').innerHTML='';
+  parsedInv=null;
+  document.getElementById(type==='sales'?'s-file':'p-file').value='';
+}
 
-function resize(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,120)+'px'; }
+async function saveInv(type){
+  if(!parsedInv?.length)return;
+  const btn=document.getElementById(type+'-save-btn');
+  const msg=document.getElementById(type+'-smsg');
+  btn.disabled=true;btn.textContent='Saving...';
+  msg.textContent='';msg.className='smsg';
+  let ok=0,fail=0;
+  for(const inv of parsedInv){
+    try{const d=await api({action:'saveInvoice',type,invoiceData:inv});if(d.success)ok++;else fail++;}
+    catch{fail++;}
+  }
+  if(ok>0){
+    msg.textContent=`✓ ${ok} saved${fail?`, ${fail} failed`:''}`;msg.className='smsg ok';
+    clearPrev(type);loadInvList(type);
+  }else{msg.textContent='Failed to save. Please try again.';msg.className='smsg err';}
+  btn.disabled=false;btn.textContent=`Save ${parsedInv.length} invoices to NOVA`;
+}
 
-function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+async function loadInvList(type){
+  const el=document.getElementById(type==='sales'?'s-list':'p-list');
+  const nk=type==='sales'?'customer_name':'supplier_name';
+  try{
+    const d=await api({action:'getInvoices',type});
+    if(!d.success||!d.data?.length){el.innerHTML='<div style="color:var(--tx3);font-size:13px;padding:8px 0">No invoices uploaded yet</div>';return;}
+    el.innerHTML=d.data.slice(0,20).map(inv=>`
+      <div class="inv-row">
+        <div><div class="inv-no">${esc(inv.invoice_number||'—')}</div><div class="inv-pt">${esc(inv[nk]||'—')}</div></div>
+        <div><div class="inv-tot">₹${(inv.total_amount||0).toLocaleString('en-IN')}</div><div class="inv-dt">${inv.invoice_date?new Date(inv.invoice_date).toLocaleDateString('en-IN'):'—'}</div></div>
+      </div>`).join('');
+  }catch{el.innerHTML='<div style="color:var(--tx3);font-size:13px">Could not load</div>';}
+}
 
-// INIT
-checkAuth();
+// ── BEARING KNOWLEDGE ─────────────────────────────────────────────
+function renderBRef(){
+  document.getElementById('b-ref').innerHTML=BREF.map(([s,t,u])=>`<tr><td>${s}</td><td>${t}</td><td>${u}</td></tr>`).join('');
+}
+async function askBearing(){
+  const q=document.getElementById('b-q').value.trim();
+  if(!q||bBusy)return;
+  const ans=document.getElementById('b-ans');
+  ans.style.color='var(--tx3)';ans.textContent='NOVA is thinking...';
+  bBusy=true;
+  try{
+    const d=await api({action:'chat',messages:[{role:'user',content:q}],context:'User is asking about bearings, machines, or industrial products for JCM Enterprise context in Gujarat GIDC areas.'});
+    ans.style.color='var(--tx)';ans.textContent=d.text||'Could not get answer.';
+  }catch{ans.style.color='var(--red)';ans.textContent='Network error. Please try again.';}
+  bBusy=false;
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// ── INIT ──────────────────────────────────────────────────────────
+document.getElementById('pin').addEventListener('keydown',e=>{document.getElementById('l-err').textContent='';if(e.key==='Enter')doLogin();});
+checkSess();
 </script>
 </body>
 </html>
