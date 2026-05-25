@@ -79,12 +79,19 @@ exports.handler = async (event) => {
   const respond = (data, code = 200) => ({ statusCode: code, headers: H, body: JSON.stringify(data) });
 
   // LOGIN — no auth needed
-  if (body.action === 'login') {
+if (body.action === 'login') {
     const { pin } = body;
     if (!pin) return respond({ error: 'PIN required' }, 400);
-    const { data, ok } = await sbQuery(`nova_users?pin_hash=eq.${hashPin(pin)}&select=id,name,role`);
-    if (!ok || !Array.isArray(data) || !data.length) return respond({ error: 'Wrong PIN. Try again.' }, 401);
-    const user = data[0];
+    
+    const USERS = [
+      { id: 'user-1', name: 'ANi', role: 'owner', hash: process.env.NOVA_PIN_HASH },
+      { id: 'user-2', name: 'Manager 1', role: 'manager', hash: process.env.NOVA_PIN_HASH_M1 || process.env.NOVA_PIN_HASH },
+      { id: 'user-3', name: 'Manager 2', role: 'manager', hash: process.env.NOVA_PIN_HASH_M2 || process.env.NOVA_PIN_HASH }
+    ];
+
+    const pinHash = hashPin(pin);
+    const user = USERS.find(u => u.hash && u.hash === pinHash);
+    if (!user) return respond({ error: 'Wrong PIN. Try again.' }, 401);
     return respond({ success: true, token: makeToken(user.id), userId: user.id, name: user.name, role: user.role });
   }
 
