@@ -1,25 +1,7 @@
 const crypto = require('crypto');
 
-const SB_URL = process.env.SUPABASE_URL;
-const SB_KEY = process.env.SUPABASE_SERVICE_KEY;
 const AI_KEY = process.env.ANTHROPIC_API_KEY;
 const SHEET_ID = '1nbvLJgeDuTrDddEHO2vOgap6heJ-cDsVqY6yhdniLwI';
-
-async function sbQuery(path, method = 'GET', body = null, extra = {}) {
-  const res = await fetch(`${SB_URL}/rest/v1/${path}`, {
-    method,
-    headers: {
-      'Content-Type': 'application/json',
-      'apikey': SB_KEY,
-      'Authorization': `Bearer ${SB_KEY}`,
-      ...extra
-    },
-    ...(body ? { body: JSON.stringify(body) } : {})
-  });
-  const text = await res.text();
-  try { return { data: JSON.parse(text), ok: res.ok }; }
-  catch { return { data: text, ok: res.ok }; }
-}
 
 function hashPin(pin) {
   return crypto.createHash('sha256').update(String(pin)).digest('hex');
@@ -27,7 +9,7 @@ function hashPin(pin) {
 
 function makeToken(userId) {
   const day = new Date().toISOString().split('T')[0];
-  return crypto.createHmac('sha256', AI_KEY).update(`${userId}:${day}`).digest('hex');
+  return crypto.createHmac('sha256', String(AI_KEY || 'nova')).update(`${userId}:${day}`).digest('hex');
 }
 
 function isValidToken(userId, token) {
@@ -38,35 +20,28 @@ function isValidToken(userId, token) {
   } catch { return false; }
 }
 
-const NOVA_SYSTEM = (ctx) => `You are NOVA (Network for Operations & Venture Analytics) — the AI intelligence system for JCM Enterprise, a bearings and industrial components trading company in Gujarat, India (since 2003).
+const USERS = [
+  { id: 'user-1', name: 'ANi', role: 'owner' },
+  { id: 'user-2', name: 'Manager 1', role: 'manager' },
+  { id: 'user-3', name: 'Manager 2', role: 'manager' }
+];
 
-JCM ENTERPRISE
-- Products: SKF & FAG bearings (ball, roller, thrust, taper, pedestal, needle), V-belts, timing belts, chains, grease
-- Areas: GIDC Kim, GIDC Udhna, GIDC Sachin and surrounding Gujarat industrial zones
-- Tagline: "Save Production Loss" — same-day emergency supply is the core strength
-- Customers: Factory purchase managers & maintenance heads
+const PIN_HASH = '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4';
 
-BEARING KNOWLEDGE
-- Ball bearings 6000/6200/6300 → electric motors, pumps, fans, compressors, textile spindles
-- Taper roller 30000 series → gearboxes, conveyors, rolling mills, heavy machinery
-- Cylindrical roller NU/NJ → machine tools, heavy industrial equipment
-- Needle NA/NK → textile machines, packaging, two-wheelers
-- Pedestal/Plummer SY/SNL → fans, blowers, agriculture
-- Thrust 51000 → vertical shafts, cranes, presses
-- Cross-ref: SKF 6205 = FAG 6205 | SKF 6205-2RS = FAG 6205-2RSR
+const SYSTEM = (ctx) => `You are NOVA - AI for JCM Enterprise, bearings trading company in Gujarat India since 2003. Products: SKF & FAG bearings, V-belts, chains, grease. Areas: GIDC Kim, Sachin, Udhna. Tagline: Save Production Loss.
 
-GIDC INTELLIGENCE
-- Sachin: Textile, dyeing, chemicals → ball bearings, needle bearings, V-belts
-- Kim: Auto components, engineering → taper bearings, roller bearings
-- Udhna: Textile, chemical, small mfg → mixed bearings, belts, chains
+Bearing knowledge:
+- Ball bearings 6000/6200/6300: motors, pumps, fans, textile spindles
+- Taper roller 30000: gearboxes, conveyors, rolling mills  
+- Needle NA/NK: textile machines, packaging
+- Pedestal SY/SNL: fans, blowers
+- SKF 6205 = FAG 6205 (cross reference)
 
-${ctx ? `LIVE JCM DATA\n${ctx}` : 'No live data loaded yet.'}
+GIDC: Sachin=textile/chemical, Kim=auto/engineering, Udhna=textile/small mfg
 
-STYLE
-- English + Hindi/Hinglish naturally mixed
-- Always cite real names, numbers from data
-- Sharp, specific, actionable — like a co-founder
-- Never vague when data exists`;
+${ctx ? 'Live data:\n' + ctx : ''}
+
+Speak English + Hindi naturally. Be specific, cite real names and numbers. Sharp like a co-founder.`;
 
 exports.handler = async (event) => {
   const H = {
@@ -81,81 +56,37 @@ exports.handler = async (event) => {
 
   let body;
   try { body = JSON.parse(event.body); }
-  catch { return { statusCode: 400, headers: H, body: JSON.stringify({ error: 'Invalid request' }) }; }
+  catch { return { statusCode: 400, headers: H, body: JSON.stringify({ error: 'Bad request' }) }; }
 
-  const respond = (data, code = 200) => ({
-    statusCode: code,
-    headers: H,
-    body: JSON.stringify(data)
-  });
+  const ok = (data) => ({ statusCode: 200, headers: H, body: JSON.stringify(data) });
+  const fail = (msg, code = 400) => ({ statusCode: code, headers: H, body: JSON.stringify({ error: msg }) });
 
-  // ── LOGIN ──────────────────────────────────────────────────────
+  // LOGIN
   if (body.action === 'login') {
-    const { pin } = body;
-    if (!pin) return respond({ error: 'PIN required' }, 400);
-
-    const USERS = [
-      { id: 'user-1', name: 'ANi', role: 'owner', hash: process.env.NOVA_PIN_HASH },
-      { id: 'user-2', name: 'Manager 1', role: 'manager', hash: process.env.NOVA_PIN_HASH_M1 || process.env.NOVA_PIN_HASH },
-      { id: 'user-3', name: 'Manager 2', role: 'manager', hash: process.env.NOVA_PIN_HASH_M2 || process.env.NOVA_PIN_HASH }
-    ];
-
-    const pinHash = hashPin(pin);
-    const user = USERS.find(u => u.hash && u.hash === pinHash);
-    if (!user) return respond({ error: 'Wrong PIN. Try again.' }, 401);
-    return respond({
-      success: true,
-      token: makeToken(user.id),
-      userId: user.id,
-      name: user.name,
-      role: user.role
-    });
+    const pinHash = hashPin(String(body.pin || ''));
+    if (pinHash !== PIN_HASH) return fail('Wrong PIN. Try again.', 401);
+    const user = USERS[0];
+    return ok({ success: true, token: makeToken(user.id), userId: user.id, name: user.name, role: user.role });
   }
 
-  // ── AUTH CHECK ─────────────────────────────────────────────────
-  const { token, userId } = body;
-  if (!token || !userId || !isValidToken(userId, token))
-    return respond({ error: 'Session expired. Please log in again.' }, 401);
+  // AUTH
+  if (!isValidToken(body.userId, body.token)) return fail('Session expired.', 401);
 
-  // ── FETCH SHEET ────────────────────────────────────────────────
+  // FETCH SHEET
   if (body.action === 'fetchSheet') {
     try {
-      const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Inquiries`;
+      const url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:csv&sheet=Inquiries';
       const res = await fetch(url);
-      if (!res.ok) throw new Error('Sheet not accessible');
+      if (!res.ok) return ok({ success: false, csv: null });
       const csv = await res.text();
-      return respond({ success: true, csv });
+      return ok({ success: true, csv });
     } catch (e) {
-      return respond({ success: false, csv: null, error: e.message });
+      return ok({ success: false, csv: null });
     }
   }
 
-  // ── GET INVOICES ───────────────────────────────────────────────
-  if (body.action === 'getInvoices') {
-    const table = body.type === 'purchase' ? 'purchase_invoices' : 'sales_invoices';
-    const { data, ok } = await sbQuery(`${table}?order=invoice_date.desc&limit=${body.limit || 50}`);
-    if (!ok) return respond({ error: 'Failed to fetch invoices' }, 500);
-    return respond({ success: true, data: data || [] });
-  }
-
-  // ── SAVE INVOICE ───────────────────────────────────────────────
-  if (body.action === 'saveInvoice') {
-    const { type, invoiceData } = body;
-    if (!type || !invoiceData) return respond({ error: 'Missing data' }, 400);
-    const table = type === 'purchase' ? 'purchase_invoices' : 'sales_invoices';
-    if (type === 'sales' && invoiceData.customer_name) {
-      invoiceData.customer_name_normalized = invoiceData.customer_name
-        .toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
-    }
-    const { data, ok } = await sbQuery(table, 'POST', invoiceData, { 'Prefer': 'return=representation' });
-    if (!ok) return respond({ error: 'Failed to save invoice' }, 500);
-    return respond({ success: true, data });
-  }
-
-  // ── CHAT ───────────────────────────────────────────────────────
+  // CHAT
   if (body.action === 'chat') {
-    const { messages, context } = body;
-    if (!messages?.length) return respond({ error: 'No messages' }, 400);
     try {
       const res = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
@@ -167,17 +98,59 @@ exports.handler = async (event) => {
         body: JSON.stringify({
           model: 'claude-sonnet-4-20250514',
           max_tokens: 1024,
-          system: NOVA_SYSTEM(context),
-          messages
+          system: SYSTEM(body.context || ''),
+          messages: body.messages || []
         })
       });
       const d = await res.json();
-      if (!res.ok || d.error) throw new Error(d.error?.message || 'AI error');
-      return respond({ text: d.content[0].text });
-    } catch (err) {
-      return respond({ error: 'NOVA temporarily offline. Try again.' }, 500);
+      if (!res.ok) return fail('AI error', 500);
+      return ok({ text: d.content[0].text });
+    } catch (e) {
+      return fail('NOVA offline', 500);
     }
   }
 
-  return respond({ error: 'Unknown action' }, 400);
+  // SAVE INVOICE
+  if (body.action === 'saveInvoice') {
+    try {
+      const SB_URL = process.env.SUPABASE_URL;
+      const SB_KEY = process.env.SUPABASE_SERVICE_KEY;
+      const table = body.type === 'purchase' ? 'purchase_invoices' : 'sales_invoices';
+      const res = await fetch(`${SB_URL}/rest/v1/${table}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SB_KEY,
+          'Authorization': `Bearer ${SB_KEY}`,
+          'Prefer': 'return=representation'
+        },
+        body: JSON.stringify(body.invoiceData)
+      });
+      const d = await res.json();
+      return ok({ success: res.ok, data: d });
+    } catch (e) {
+      return fail('Save failed', 500);
+    }
+  }
+
+  // GET INVOICES
+  if (body.action === 'getInvoices') {
+    try {
+      const SB_URL = process.env.SUPABASE_URL;
+      const SB_KEY = process.env.SUPABASE_SERVICE_KEY;
+      const table = body.type === 'purchase' ? 'purchase_invoices' : 'sales_invoices';
+      const res = await fetch(`${SB_URL}/rest/v1/${table}?order=invoice_date.desc&limit=50`, {
+        headers: {
+          'apikey': SB_KEY,
+          'Authorization': `Bearer ${SB_KEY}`
+        }
+      });
+      const d = await res.json();
+      return ok({ success: true, data: d });
+    } catch (e) {
+      return ok({ success: true, data: [] });
+    }
+  }
+
+  return fail('Unknown action');
 };
